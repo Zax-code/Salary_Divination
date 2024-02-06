@@ -1,5 +1,5 @@
-import Image from 'next/image'
-import Link from 'next/link'
+"use client"
+import { useState } from 'react'
 
 interface Customer_Info {
   work_year: number
@@ -14,7 +14,37 @@ interface Customer_Info {
 }
 
 export default function Home() {
+  const [customerInfo, setCustomerInfo] = useState<Customer_Info>({
+    work_year: 0,
+    experience_level: '',
+    employment_type: '',
+    job_title: '',
+    salary_currency: '',
+    employee_residence: '',
+    company_location: '',
+    company_size: '',
+    remote_ratio: 0,
+  })
+  const [prediction, setPrediction] = useState<number>(0);
   //Fetch /api/predict with json object : {'work_year': '2023', 'experience_level': 'SE', 'employment_type': 'FT', 'job_title': 'Data Engineer', 'salary_currency': 'USD', 'employee_residence': 'US', 'company_location': 'US', 'company_size': 'M', 'remote_ratio': 50}
+  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    fetch('http://localhost:3000/api/predict', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(customerInfo),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        console.log('Success:', data)
+        setPrediction(data.predicted_salary[0])
+      })
+      .catch((error) => {
+        console.error('Error:', error)
+      })
+  }
   fetch('http://localhost:3000/api/predict', {
     method: 'POST',
     headers: {
@@ -41,112 +71,169 @@ export default function Home() {
     })
   return (
     <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <div className="z-10 w-full max-w-5xl items-center justify-between font-mono text-sm lg:flex">
-        <p className="fixed left-0 top-0 flex w-full justify-center border-b border-gray-300 bg-gradient-to-b from-zinc-200 pb-6 pt-8 backdrop-blur-2xl dark:border-neutral-800 dark:bg-zinc-800/30 dark:from-inherit lg:static lg:w-auto  lg:rounded-xl lg:border lg:bg-gray-200 lg:p-4 lg:dark:bg-zinc-800/30">
-          Get started by editing&nbsp;
-          <Link href="/api/python">
-            <code className="font-mono font-bold">api/index.py</code>
-          </Link>
-        </p>
-        <div className="fixed bottom-0 left-0 flex h-48 w-full items-end justify-center bg-gradient-to-t from-white via-white dark:from-black dark:via-black lg:static lg:h-auto lg:w-auto lg:bg-none">
-          <a
-            className="pointer-events-none flex place-items-center gap-2 p-8 lg:pointer-events-auto lg:p-0"
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{' '}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className="dark:invert"
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
+      <form className="flex flex-col items-center justify-between" onSubmit={handleSubmit}>
+        <h1 className="text-4xl font-bold mb-8">Salary Prediction</h1>
+        <div className="flex flex-col items-center justify-between mb-8">
+          <label htmlFor="work_year" className="mb-2">
+            Work Year
+          </label>
+          <input
+            type="number"
+            id="work_year"
+            name="work_year"
+            value={customerInfo.work_year}
+            onChange={(e) =>
+              setCustomerInfo({ ...customerInfo, work_year: parseInt(e.target.value) })
+            }
+            className="p-2 mb-4 text-black"
+          />
         </div>
-      </div>
-
-      <div className="relative flex place-items-center before:absolute before:h-[300px] before:w-[480px] before:-translate-x-1/2 before:rounded-full before:bg-gradient-radial before:from-white before:to-transparent before:blur-2xl before:content-[''] after:absolute after:-z-20 after:h-[180px] after:w-[240px] after:translate-x-1/3 after:bg-gradient-conic after:from-sky-200 after:via-blue-200 after:blur-2xl after:content-[''] before:dark:bg-gradient-to-br before:dark:from-transparent before:dark:to-blue-700 before:dark:opacity-10 after:dark:from-sky-900 after:dark:via-[#0141ff] after:dark:opacity-40 before:lg:h-[360px]">
-        <Image
-          className="relative dark:drop-shadow-[0_0_0.3rem_#ffffff70] dark:invert"
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
-
-      <div className="mb-32 grid text-center lg:mb-0 lg:grid-cols-4 lg:text-left">
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
+        <div className="flex flex-col items-center justify-between mb-8">
+          <label htmlFor="experience_level" className="mb-2">
+            Experience Level
+          </label>
+          <input
+            type="text"
+            id="experience_level"
+            name="experience_level"
+            value={customerInfo.experience_level}
+            onChange={(e) =>
+              setCustomerInfo({
+                ...customerInfo,
+                experience_level: e.target.value,
+              })
+            }
+            className="p-2 mb-4 text-black"
+          />
+        </div>
+        <div className="flex flex-col items-center justify-between mb-8">
+          <label htmlFor="employment_type" className="mb-2">
+            Employment Type
+          </label>
+          <input
+            type="text"
+            id="employment_type"
+            name="employment_type"
+            value={customerInfo.employment_type}
+            onChange={(e) =>
+              setCustomerInfo({
+                ...customerInfo,
+                employment_type: e.target.value,
+              })
+            }
+            className="p-2 mb-4 text-black"
+          />
+        </div>
+        <div className="flex flex-col items-center justify-between mb-8">
+          <label htmlFor="job_title" className="mb-2">
+            Job Title
+          </label>
+          <input
+            type="text"
+            id="job_title"
+            name="job_title"
+            value={customerInfo.job_title}
+            onChange={(e) =>
+              setCustomerInfo({ ...customerInfo, job_title: e.target.value })
+            }
+            className="p-2 mb-4 text-black"
+          />
+        </div>
+        <div className="flex flex-col items-center justify-between mb-8">
+          <label htmlFor="salary_currency" className="mb-2">
+            Salary Currency
+          </label>
+          <input
+            type="text"
+            id="salary_currency"
+            name="salary_currency"
+            value={customerInfo.salary_currency}
+            onChange={(e) =>
+              setCustomerInfo({
+                ...customerInfo,
+                salary_currency: e.target.value,
+              })
+            }
+            className="p-2 mb-4 text-black"
+          />
+        </div>
+        <div className="flex flex-col items-center justify-between mb-8">
+          <label htmlFor="employee_residence" className="mb-2">
+            Employee Residence
+          </label>
+          <input
+            type="text"
+            id="employee_residence"
+            name="employee_residence"
+            value={customerInfo.employee_residence}
+            onChange={(e) =>
+              setCustomerInfo({
+                ...customerInfo,
+                employee_residence: e.target.value,
+              })
+            }
+            className="p-2 mb-4 text-black"
+          />
+        </div>
+        <div className="flex flex-col items-center justify-between mb-8">
+          <label htmlFor="company_location" className="mb-2">
+            Company Location
+          </label>
+          <input
+            type="text"
+            id="company_location"
+            name="company_location"
+            value={customerInfo.company_location}
+            onChange={(e) =>
+              setCustomerInfo({
+                ...customerInfo,
+                company_location: e.target.value,
+              })
+            }
+            className="p-2 mb-4 text-black"
+          />
+        </div>
+        <div className="flex flex-col items-center justify-between mb-8">
+          <label htmlFor="company_size" className="mb-2">
+            Company Size
+          </label>
+          <input
+            type="text"
+            id="company_size"
+            name="company_size"
+            value={customerInfo.company_size}
+            onChange={(e) =>
+              setCustomerInfo({ ...customerInfo, company_size: e.target.value })
+            }
+            className="p-2 mb-4 text-black"
+          />
+        </div>
+        <div className="flex flex-col items-center justify-between mb-8">
+          <label htmlFor="remote_ratio" className="mb-2">
+            Remote Ratio
+          </label>
+          <input
+            type="number"
+            id="remote_ratio"
+            name="remote_ratio"
+            value={customerInfo.remote_ratio}
+            onChange={(e) =>
+              setCustomerInfo({ ...customerInfo, remote_ratio: parseInt(e.target.value) })
+            }
+            className="p-2 mb-4 text-black"
+          />
+        </div>
+        <button
+          type="submit"
+          className="bg-blue-500 text-white p-2 rounded-md"
         >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Docs{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Find in-depth information about Next.js features and API.
-          </p>
-        </a>
+          Submit
+        </button>
+      </form>
 
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800 hover:dark:bg-opacity-30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Learn{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Learn about Next.js in an interactive course with&nbsp;quizzes!
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Templates{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Explore the Next.js 13 playground.
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Deploy{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
+      <div className="flex flex-col items-center justify-between">
+        <h1 className="text-4xl font-bold mb-8">Prediction</h1>
+        <p className="text-2xl font-bold mb-8">{prediction}$ a year</p>
       </div>
     </main>
   )

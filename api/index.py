@@ -38,4 +38,4 @@ def predict_salary():
     y_pred_inverse = y_scaler.inverse_transform(y_pred)
     
     # Return the prediction
-    return jsonify({'predicted_salary': y_pred_inverse.flatten().tolist()})
+    return jsonify({'predicted_salary': [round(y) for y in y_pred_inverse.flatten().tolist()]})
