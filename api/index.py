@@ -8,10 +8,10 @@ import joblib
 app = Flask(__name__)
 
 # Load the saved components
-model = tf.keras.models.load_model('salary_prediction_model')
-ohe = joblib.load('onehotencoder.joblib')
-scaler = joblib.load('features_scaler.joblib')
-y_scaler = joblib.load('target_scaler.joblib')
+model = tf.keras.models.load_model('model_data/salary_prediction_model')
+ohe = joblib.load('model_data/onehotencoder.joblib')
+scaler = joblib.load('model_data/features_scaler.joblib')
+y_scaler = joblib.load('model_data/target_scaler.joblib')
 
 @app.route('/api/predict', methods=['POST'])
 def predict_salary():
